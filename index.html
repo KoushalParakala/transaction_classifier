@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Classifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            width: 300px;
+        }
+        #result {
+            font-size: 20px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Transaction Category Classifier</h2>
+    
+    <input type="text" id="textInput" placeholder="Enter transaction details">
+    <input type="number" id="costInput" placeholder="Total cost">
+    <input type="number" id="costPerItemInput" placeholder="Cost per item">
+    <input type="number" id="numItemsInput" placeholder="Number of items purchased">
+    
+    <button onclick="classifyTransaction()">Classify Transaction</button>
+    
+    <div id="result"></div>
+
+    <script>
+        function classifyTransaction() {
+            const text = document.getElementById("textInput").value;
+            const totalCost = parseFloat(document.getElementById("costInput").value);
+            const costPerItem = parseFloat(document.getElementById("costPerItemInput").value);
+            const numItems = parseInt(document.getElementById("numItemsInput").value);
+
+            if (!text || isNaN(totalCost) || isNaN(costPerItem) || isNaN(numItems)) {
+                alert("Please fill in all fields correctly!");
+                return;
+            }
+
+            const requestData = {
+                text: text,
+                numerical_features: [totalCost, costPerItem, numItems]
+            };
+
+            fetch("http://127.0.0.1:5000/predict", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").innerText = "Predicted Category: " + data.category;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("result").innerText = "Error predicting category.";
+            });
+        }
+    </script>
+</body>
+</html>
